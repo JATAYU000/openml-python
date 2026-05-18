@@ -21,7 +21,7 @@ from oslo_concurrency import lockutils
 
 import openml
 from openml import OpenMLDataset
-from openml._api_calls import _download_minio_file
+from openml._api.clients.minio import MinIOClient
 from openml.datasets import edit_dataset, fork_dataset
 from openml.datasets.functions import (
     DATASETS_CACHE_DIR_NAME,
@@ -351,36 +351,16 @@ class TestOpenMLDataset(TestBase):
         assert isinstance(arff_path, Path)
         assert arff_path.exists()
 
+
     def test__download_minio_file_object_does_not_exist(self):
+        minio = MinIOClient()
         self.assertRaisesRegex(
             FileNotFoundError,
             r"Object at .* does not exist",
-            _download_minio_file,
+            minio.download_minio_file,
             source="http://data.openml.org/dataset20/i_do_not_exist.pq",
-            destination=self.workdir,
             exists_ok=True,
         )
-
-    def test__download_minio_file_to_directory(self):
-        _download_minio_file(
-            source="http://data.openml.org/dataset20/dataset_20.pq",
-            destination=self.workdir,
-            exists_ok=True,
-        )
-        assert os.path.isfile(
-            os.path.join(self.workdir, "dataset_20.pq")
-        ), "_download_minio_file can save to a folder by copying the object name"
-
-    def test__download_minio_file_to_path(self):
-        file_destination = os.path.join(self.workdir, "custom.pq")
-        _download_minio_file(
-            source="http://data.openml.org/dataset20/dataset_20.pq",
-            destination=file_destination,
-            exists_ok=True,
-        )
-        assert os.path.isfile(
-            file_destination
-        ), "_download_minio_file can save to a folder by copying the object name"
 
     def test__download_minio_file_raises_FileExists_if_destination_in_use(self):
         file_destination = Path(self.workdir, "custom.pq")
@@ -395,18 +375,17 @@ class TestOpenMLDataset(TestBase):
         )
 
     def test__download_minio_file_works_with_bucket_subdirectory(self):
-        file_destination = Path(self.workdir, "custom.pq")
-        _download_minio_file(
+        minio = MinIOClient()
+        file_destination = minio.download_minio_file(
             source="http://data.openml.org/dataset61/dataset_61.pq",
-            destination=file_destination,
             exists_ok=True,
         )
         assert os.path.isfile(
             file_destination
-        ), "_download_minio_file can download from subdirectories"
+        ), "download_minio_file can download from subdirectories"
 
 
-    @mock.patch("openml._api_calls._download_minio_file")
+    @mock.patch.object(MinIOClient, "download_minio_file")
     @pytest.mark.test_server()
     def test__get_dataset_parquet_is_cached(self, patch):
         openml.config.set_root_cache_directory(self.static_cache_dir)

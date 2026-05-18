@@ -43,7 +43,6 @@ class MinIOClient:
     def download_minio_file(
         self,
         source: str,
-        destination: str | Path | None = None,
         exists_ok: bool = True,  # noqa: FBT002
         proxy: str | None = "auto",
     ) -> Path:
@@ -62,11 +61,7 @@ class MinIOClient:
             automatically find the proxy to use. Pass None or the environment variable
             ``no_proxy="*"`` to disable proxies.
         """
-        destination = (
-            Path(openml.config.get_minio_download_path(source))
-            if destination is None
-            else Path(destination)
-        )
+        destination = Path(openml.config.get_minio_download_path(source))
         parsed_url = urllib.parse.urlparse(source)
 
         # expect path format: /BUCKET/path/to/file.ext
@@ -107,7 +102,7 @@ class MinIOClient:
 
         return destination
 
-    def download_minio_bucket(self, source: str, destination: str | Path | None = None) -> None:
+    def download_minio_bucket(self, source: str) -> None:
         """Download file ``source`` from a MinIO Bucket and store it at ``destination``.
 
         Does not redownload files which already exist.
@@ -119,11 +114,7 @@ class MinIOClient:
         destination : str | Path
             Path to a directory to store the bucket content in.
         """
-        destination = (
-            Path(openml.config.get_minio_download_path(source))
-            if destination is None
-            else Path(destination)
-        )
+        destination = Path(openml.config.get_minio_download_path(source))
         parsed_url = urllib.parse.urlparse(source)
         if destination.suffix:
             destination = destination.parent
@@ -154,7 +145,6 @@ class MinIOClient:
                     source=source.rsplit("/", 1)[0]
                     + "/"
                     + file_object.object_name.rsplit("/", 1)[1],
-                    destination=file_destination,
                     exists_ok=False,
                 )
 
