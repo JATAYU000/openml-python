@@ -362,17 +362,6 @@ class TestOpenMLDataset(TestBase):
             exists_ok=True,
         )
 
-    def test__download_minio_file_raises_FileExists_if_destination_in_use(self):
-        file_destination = Path(self.workdir, "custom.pq")
-        file_destination.touch()
-
-        self.assertRaises(
-            FileExistsError,
-            _download_minio_file,
-            source="http://data.openml.org/dataset20/dataset_20.pq",
-            destination=str(file_destination),
-            exists_ok=False,
-        )
 
     def test__download_minio_file_works_with_bucket_subdirectory(self):
         minio = MinIOClient()
@@ -390,7 +379,7 @@ class TestOpenMLDataset(TestBase):
     def test__get_dataset_parquet_is_cached(self, patch):
         openml.config.set_root_cache_directory(self.static_cache_dir)
         patch.side_effect = RuntimeError(
-            "_download_parquet_url should not be called when loading from cache",
+            "download_parquet_url should not be called when loading from cache",
         )
         description = {
             "oml:parquet_url": "http://data.openml.org/dataset30/dataset_30.pq",

@@ -733,16 +733,22 @@ class DatasetV1API(ResourceV1API, DatasetAPI):
         else:
             raise TypeError("`description` should be either OpenMLDataset or Dict.")
 
+        output_file_path = Path(openml.config.get_minio_download_path(url))
         if download_all_files:
             self._minio.download_minio_bucket(source=url)
 
-        try:
-            output_file_path = self._minio.download_minio_file(
-                source=url,
-            )
-        except (FileNotFoundError, urllib3.exceptions.MaxRetryError, minio.error.ServerError) as e:
-            logger.warning(f"Could not download file from {url}: {e}")
-            return None
+        if not output_file_path.is_file():
+            try:
+                output_file_path = self._minio.download_minio_file(
+                    source=url,
+                )
+            except (
+                FileNotFoundError,
+                urllib3.exceptions.MaxRetryError,
+                minio.error.ServerError,
+            ) as e:
+                logger.warning(f"Could not download file from {url}: {e}")
+                return None
         return output_file_path
 
     def download_dataset_arff(
@@ -1432,14 +1438,20 @@ class DatasetV2API(ResourceV2API, DatasetAPI):
         else:
             raise TypeError("`description` should be either OpenMLDataset or Dict.")
 
+        output_file_path = Path(openml.config.get_minio_download_path(url))
         if download_all_files:
             self._minio.download_minio_bucket(source=url)
 
-        try:
-            output_file_path = self._minio.download_minio_file(source=url)
-        except (FileNotFoundError, urllib3.exceptions.MaxRetryError, minio.error.ServerError) as e:
-            logger.warning(f"Could not download file from {url}: {e}")
-            return None
+        if not output_file_path.is_file():
+            try:
+                output_file_path = self._minio.download_minio_file(source=url)
+            except (
+                FileNotFoundError,
+                urllib3.exceptions.MaxRetryError,
+                minio.error.ServerError,
+            ) as e:
+                logger.warning(f"Could not download file from {url}: {e}")
+                return None
         return output_file_path
 
     def download_dataset_arff(
