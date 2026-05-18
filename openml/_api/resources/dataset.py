@@ -689,7 +689,7 @@ class DatasetV1API(ResourceV1API, DatasetAPI):
         self.parse_features_file(file)
         return file
 
-    def download_qualities_file(self, dataset_id: int) -> Path:
+    def download_qualities_file(self, dataset_id: int) -> Path | None:
         """Download qualities file.
 
         Parameters
@@ -702,7 +702,15 @@ class DatasetV1API(ResourceV1API, DatasetAPI):
         Path
         """
         path = f"data/qualities/{dataset_id}"
-        file = self._download_file(path)
+        try:
+            file = self._download_file(path)
+        except OpenMLServerException as e:
+            if e.code == 362 and str(e) == "No qualities found - None":
+                # quality file stays as None
+                logger.warning(f"No qualities found for dataset {dataset_id}")
+                return None
+            raise e
+
         self.parse_qualities_file(file)
         return file
 
@@ -1394,7 +1402,7 @@ class DatasetV2API(ResourceV2API, DatasetAPI):
         self.parse_features_file(file)
         return file
 
-    def download_qualities_file(self, dataset_id: int) -> Path:
+    def download_qualities_file(self, dataset_id: int) -> Path | None:
         """Download qualities file.
 
         Parameters
@@ -1407,7 +1415,15 @@ class DatasetV2API(ResourceV2API, DatasetAPI):
         Path
         """
         path = f"datasets/qualities/{dataset_id}"
-        file = self._download_file(path)
+        try:
+            file = self._download_file(path)
+        except OpenMLServerException as e:
+            if e.code == 362 and str(e) == "No qualities found - None":
+                # quality file stays as None
+                logger.warning(f"No qualities found for dataset {dataset_id}")
+                return None
+            raise e
+
         self.parse_qualities_file(file)
         return file
 
