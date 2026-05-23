@@ -259,6 +259,11 @@ def get_datasets(
     -------
     datasets : list of datasets
         A list of dataset objects.
+
+    Examples
+    --------
+    >>> import openml
+    >>> datasets = openml.datasets.get_datasets([1, 2, 3])  # doctest: +SKIP
     """
     datasets = []
     for dataset_id in dataset_ids:
@@ -341,6 +346,13 @@ def get_dataset(
     -------
     dataset : :class:`openml.OpenMLDataset`
         The downloaded dataset.
+
+    Examples
+    --------
+    >>> import openml
+    >>> dataset = openml.datasets.get_dataset(1)  # doctest: +SKIP
+    >>> dataset = openml.datasets.get_dataset("iris", version=1)  # doctest: +SKIP
+    >>> dataset = openml.datasets.get_dataset(1, download_data=True)  # doctest: +SKIP
     """
     if download_all_files:
         warnings.warn(
