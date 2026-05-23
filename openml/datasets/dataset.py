@@ -15,10 +15,10 @@ import arff
 import numpy as np
 import pandas as pd
 import scipy.sparse
-from filelock import FileLock
 
 import openml
 from openml.base import OpenMLBase
+from openml.utils._openml import file_lock
 
 from .data_feature import OpenMLDataFeature
 
@@ -467,7 +467,7 @@ class OpenMLDataset(OpenMLBase):  # noqa: PLW1641
             List[str]: List of column names.
         """
         lock_path = str(arff_file_path) + ".lock"
-        with FileLock(lock_path):
+        with file_lock(lock_path):
             try:
                 data = self._get_arff(self.format)
             except OSError as e:
@@ -618,7 +618,7 @@ class OpenMLDataset(OpenMLBase):  # noqa: PLW1641
 
     def _parse_data_from_pq(self, data_file: Path) -> tuple[list[str], list[bool], pd.DataFrame]:
         lock_path = str(data_file) + ".lock"
-        with FileLock(lock_path):
+        with file_lock(lock_path):
             try:
                 data = pd.read_parquet(data_file)
             except Exception as e:
@@ -635,7 +635,7 @@ class OpenMLDataset(OpenMLBase):  # noqa: PLW1641
         if need_to_create_pickle or need_to_create_feather:
             cache_file = self.data_pickle_file if need_to_create_pickle else self.data_feather_file
             lock_path = str(cache_file) + ".lock"
-            with FileLock(lock_path):
+            with file_lock(lock_path):
                 if self.data_file is None:
                     self._download_data()
 
