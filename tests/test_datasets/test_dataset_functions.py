@@ -377,7 +377,7 @@ class TestOpenMLDataset(TestBase):
     @mock.patch.object(MinIOClient, "download_minio_file")
     @pytest.mark.test_server()
     def test__get_dataset_parquet_is_cached(self, patch):
-        openml.config.set_root_cache_directory(self.static_cache_dir/'org/openml/test')
+        openml.config.set_root_cache_directory(self.static_cache_dir)
         patch.side_effect = RuntimeError(
             "download_parquet_url should not be called when loading from cache",
         )
