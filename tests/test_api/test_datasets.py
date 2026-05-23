@@ -123,7 +123,7 @@ def test_v1_status_update(dataset_v1):
 def test_v1_edit(dataset_v1):
     did = 2
     result = dataset_v1.fork(did)
-    _wait_for_dataset_being_processed(dataset_v1, result,'in_preparation')
+    _wait_for_dataset_being_processed(dataset_v1, result,'active')
 
     edited_did = dataset_v1.edit(result, description="Forked dataset", default_target_attribute="shape")
     assert result == edited_did
