@@ -408,7 +408,7 @@ def test__read_features(mocker, workdir, static_cache_dir):
     This test also does some simple checks to verify that the features are read correctly
     """
     filename_mock = mocker.patch("openml.datasets.dataset._get_features_pickle_file")
-    pickle_mock = mocker.patch("openml.datasets.dataset.pickle")
+    pickle_mock = mocker.patch("openml._api.resources.dataset.pickle")
 
     filename_mock.return_value = os.path.join(workdir, "features.xml.pkl")
     pickle_mock.load.side_effect = FileNotFoundError
