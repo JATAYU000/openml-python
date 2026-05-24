@@ -1489,9 +1489,11 @@ class DatasetV2API(ResourceV2API, DatasetAPI):
         if isinstance(description, dict):
             url = str(description["url"])
             did = int(description.get("id"))  # type: ignore
+            md5_checksum_fixture = description.get("md5_checksum")
         elif isinstance(description, OpenMLDataset):
             assert description.url is not None
             assert description.dataset_id is not None
+            md5_checksum_fixture = description.md5_checksum
 
             url = description.url
             did = int(description.dataset_id)
@@ -1500,7 +1502,7 @@ class DatasetV2API(ResourceV2API, DatasetAPI):
 
         try:
             # save the file in cache and get it's path
-            self._http.get(url, enable_cache=True)
+            self._http.get(url, enable_cache=True, md5_checksum=md5_checksum_fixture)
             output_file_path = self._http.cache_path_from_url(url)
         except OpenMLHashException as e:
             additional_info = f" Raised when downloading dataset {did}."

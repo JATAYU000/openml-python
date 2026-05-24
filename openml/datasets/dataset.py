@@ -633,14 +633,16 @@ class OpenMLDataset(OpenMLBase):  # noqa: PLW1641
         need_to_create_feather = self.cache_format == "feather" and self.data_feather_file is None
 
         if need_to_create_pickle or need_to_create_feather:
-            cache_file = self.data_pickle_file if need_to_create_pickle else self.data_feather_file
+            if self.data_file is None:
+                self._download_data()
+
+            file_to_load = self.data_file if self.parquet_file is None else self.parquet_file
+            assert file_to_load is not None
+            cache_file = self._compressed_cache_file_paths(Path(file_to_load))[
+                0 if need_to_create_pickle else 1
+            ]
             lock_path = str(cache_file) + ".lock"
             with file_lock(lock_path):
-                if self.data_file is None:
-                    self._download_data()
-
-                file_to_load = self.data_file if self.parquet_file is None else self.parquet_file
-                assert file_to_load is not None
                 data, cats, attrs = self._cache_compressed_file_from_file(Path(file_to_load))
                 return _ensure_dataframe(data, attrs), cats, attrs
 

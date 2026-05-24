@@ -52,8 +52,6 @@ class MinIOClient:
         ----------
         source : str
             URL to a file in a MinIO bucket.
-        destination : str | Path
-            Path to store the file to, if a directory is provided the original filename is used.
         exists_ok : bool, optional (default=True)
             If False, raise FileExists if a file already exists in ``destination``.
         proxy: str, optional (default = "auto")
@@ -111,8 +109,6 @@ class MinIOClient:
         ----------
         source : str
             URL to a MinIO bucket.
-        destination : str | Path
-            Path to a directory to store the bucket content in.
         """
         destination = Path(openml.config.get_minio_download_path(source))
         parsed_url = urllib.parse.urlparse(source)
