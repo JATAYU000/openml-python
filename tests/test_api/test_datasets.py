@@ -22,9 +22,8 @@ def dataset_v2(http_client_v2, minio_client) -> DatasetV2API:
 
 
 def _wait_for_dataset_being_processed(dataset, did, status='active', n_tries=10, wait_time=10):
-    for _ in range(n_tries):
+    for attempt in range(n_tries):
         try:
-            time.sleep(wait_time)
             result = dataset.list(limit=1, offset=0, data_id=[did], status="all")
             result = result.to_dict(orient="index")
             TestBase.logger.warning(f"Dataset {did} status: {result[did]['status']}")
@@ -32,6 +31,9 @@ def _wait_for_dataset_being_processed(dataset, did, status='active', n_tries=10,
                 return
         except Exception:
             pass
+
+        if attempt < n_tries - 1:
+            time.sleep(wait_time)
     raise TimeoutError(f"Dataset did not become {status} within given time")
 
 def _status_update_check(dataset, dataset_id, status):

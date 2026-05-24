@@ -1054,11 +1054,8 @@ def _read_features(features_file: str | Path) -> dict[int, OpenMLDataFeature]:
         with features_pickle_file.open("rb") as fh_binary:
             return pickle.load(fh_binary)  # type: ignore  # noqa: S301
 
-    except FileNotFoundError:
-        features = openml._backend.dataset.parse_features_file(features_file, features_pickle_file)
-        with features_pickle_file.open("wb") as fh_binary:
-            pickle.dump(features, fh_binary)
-        return features
+    except:  # noqa: E722
+        return openml._backend.dataset.parse_features_file(features_file, features_pickle_file)
 
 
 # TODO(eddiebergman): Should this really exist?

@@ -184,7 +184,7 @@ class TestOpenMLDataset(TestBase):
         """Check that an activated dataset is returned if an earlier deactivated one exists."""
         self.use_production_server()
         # /d/1 was deactivated
-        assert openml.datasets.functions._name_to_id("anneal",version=1) == 2
+        assert openml.datasets.functions._name_to_id("anneal", version=1) == 2
 
     @pytest.mark.production_server()
     def test__name_to_id_with_multiple_active(self):
@@ -1385,7 +1385,7 @@ class TestOpenMLDataset(TestBase):
         n_tries = 10
         # we need to wait for the edit to be reflected on the server
         for i in range(n_tries):
-            edited_dataset = openml.datasets.get_dataset(did,force_refresh_cache=True)
+            edited_dataset = openml.datasets.get_dataset(did, force_refresh_cache=True)
             try:
                 assert edited_dataset.default_target_attribute == "shape", edited_dataset
                 assert edited_dataset.ignore_attribute == ["oil"], edited_dataset
@@ -1395,7 +1395,6 @@ class TestOpenMLDataset(TestBase):
                     raise e
                 time.sleep(10)
                 # Delete the cache dir to get the newer version of the dataset
-                #TODO not needed as tests are isolated?
 
     @pytest.mark.test_server()
     def test_data_edit_requires_field(self):
@@ -1815,7 +1814,7 @@ def test_list_datasets_combined_filters(all_datasets: pd.DataFrame):
 
 
 def _dataset_file_is_downloaded(did: int, file: str):
-    cache_directory = Path(openml.config.get_cache_directory()) / "api/v1/xml/data" / str(did)     
+    cache_directory = Path(openml.config.get_cache_directory()) / "api/v1/xml/data" / str(did)
     return (cache_directory / file).exists()
 
 
@@ -1829,7 +1828,7 @@ def _dataset_qualities_is_downloaded(did: int):
 
 
 def _dataset_features_is_downloaded(did: int):
-    cache_directory = Path(openml.config.get_cache_directory()) / "api/v1/xml/data/features/" 
+    cache_directory = Path(openml.config.get_cache_directory()) / "api/v1/xml/data/features/"
     return (cache_directory / str(did) / "body.xml").exists()
 
 
