@@ -1099,7 +1099,7 @@ class DatasetV2API(ResourceV2API, DatasetAPI):
         qualities = self._http.get(api_call).json()
         # Minimalistic check if the JSON is useful
         if "data_qualities_list" not in qualities:
-            raise ValueError('Error in return JSON, does not contain "oml:data_qualities_list"')
+            raise ValueError('Error in return JSON, does not contain "data_qualities_list"')
 
         if not isinstance(qualities["data_qualities_list"]["quality"], list):
             raise TypeError('Error  in return JSON, does not contain "quality" as a list')
@@ -1284,20 +1284,32 @@ class DatasetV2API(ResourceV2API, DatasetAPI):
 
         return qualities
 
-    def _parse_features_json(self, features_json: dict) -> dict[int, OpenMLDataFeature]:
+    def _parse_features_json(
+        self,
+        features_json: dict[str, Any] | builtins.list[dict[str, Any]],
+    ) -> dict[int, OpenMLDataFeature]:
         """Parse features json.
 
         Parameters
         ----------
-        features_json : dict
-            Features json.
+        features_json : dict[str, Any] | list[dict[str, Any]]
+            Features JSON payload. Accepts either a list of feature objects or
+            an object containing a ``features`` list.
 
         Returns
         -------
         dict[int, OpenMLDataFeature]
         """
+        if isinstance(features_json, dict):
+            features_data = features_json.get("features")
+            if not isinstance(features_data, list):
+                raise TypeError('Error in return JSON, does not contain "features" as a list')
+            features_list = features_data
+        else:
+            features_list = features_json
+
         features: dict[int, OpenMLDataFeature] = {}
-        for idx, jsonfeatures in enumerate(features_json):
+        for idx, jsonfeatures in enumerate(features_list):
             nr_missing = jsonfeatures.get("number_of_missing_values", 0)
             feature = OpenMLDataFeature(
                 int(jsonfeatures["index"]),
@@ -1313,20 +1325,32 @@ class DatasetV2API(ResourceV2API, DatasetAPI):
 
         return features
 
-    def _parse_qualities_json(self, qualities_json: dict) -> dict[str, float]:
+    def _parse_qualities_json(
+        self,
+        qualities_json: dict[str, Any] | builtins.list[dict[str, Any]],
+    ) -> dict[str, float]:
         """Parse qualities json.
 
         Parameters
         ----------
-        qualities_json : dict
-            Qualities json.
+        qualities_json : dict[str, Any] | list[dict[str, Any]]
+            Qualities JSON payload. Accepts either a list of quality objects or
+            an object containing a ``qualities`` list.
 
         Returns
         -------
         dict[str, float]
         """
+        if isinstance(qualities_json, dict):
+            qualities_data = qualities_json.get("qualities")
+            if not isinstance(qualities_data, list):
+                raise TypeError('Error in return JSON, does not contain "qualities" as a list')
+            qualities_list = qualities_data
+        else:
+            qualities_list = qualities_json
+
         qualities_ = {}
-        for quality in qualities_json:
+        for quality in qualities_list:
             name = quality["name"]
             if quality.get("value", None) is None or quality["value"] == "null":
                 value = float("NaN")
