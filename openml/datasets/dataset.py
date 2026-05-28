@@ -985,7 +985,7 @@ class OpenMLDataset(OpenMLBase):  # noqa: PLW1641
         """
         if self.dataset_id is None:
             raise openml.exceptions.ObjectNotPublishedError(
-                "Cannot tag an dataset that has not been published yet."
+                "Cannot tag a dataset that has not been published yet."
                 "Please publish the object first before being able to tag it."
             )
         openml._backend.dataset.tag(self.dataset_id, tag)
@@ -1000,7 +1000,7 @@ class OpenMLDataset(OpenMLBase):  # noqa: PLW1641
         """
         if self.dataset_id is None:
             raise openml.exceptions.ObjectNotPublishedError(
-                "Cannot tag an dataset that has not been published yet."
+                "Cannot tag a dataset that has not been published yet."
                 "Please publish the object first before being able to tag it."
             )
         openml._backend.dataset.untag(self.dataset_id, tag)

@@ -469,7 +469,7 @@ def file_lock(lock_path: str) -> Iterator[None]:
 
     lock_dir = _create_lockfiles_dir()
     name = hashlib.sha256(str(lock_path).encode()).hexdigest()
-    with lockutils.external_lock(name=name, lock_path=lock_dir):
+    with lockutils.external_lock(name=name, lock_path=str(lock_dir)):
         yield
 
 

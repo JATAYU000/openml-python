@@ -303,7 +303,7 @@ class DatasetV1API(ResourceV1API, DatasetAPI):
         server_status = result["oml:data_status_update"]["oml:status"]
         if status != server_status or int(dataset_id) != int(server_data_id):
             # This should never happen
-            raise ValueError("Data id/status does not collide")
+            raise ValueError("Data id/status does not match")
 
     def list_qualities(self) -> builtins.list[str]:
         """Return list of data qualities available.
@@ -1083,7 +1083,7 @@ class DatasetV2API(ResourceV2API, DatasetAPI):
         server_status = result["status"]
         if status != server_status or int(dataset_id) != int(server_data_id):
             # This should never happen
-            raise ValueError("Data id/status does not collide")
+            raise ValueError("Data id/status does not match")
 
     def list_qualities(self) -> builtins.list[str]:
         """Return list of data qualities available.
