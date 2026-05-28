@@ -992,9 +992,6 @@ def _get_dataset_features_file(
 
     Parameters
     ----------
-    did_cache_dir : str or None
-        Cache subdirectory for this dataset
-
     dataset_id : int
         Dataset ID
 
@@ -1018,9 +1015,6 @@ def _get_dataset_qualities_file(
 
     Parameters
     ----------
-    did_cache_dir : str or None
-        Cache subdirectory for this dataset
-
     dataset_id : int
         Dataset ID
 
