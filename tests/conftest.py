@@ -205,10 +205,6 @@ def _expected_static_cache_state(root_dir: Path) -> list[Path]:
     _c_root_dir = root_dir / "org" / "openml" / "test"
     res_paths = [root_dir, _c_root_dir]
 
-    for _d in ["tasks", "runs"]:
-        res_paths.append(_c_root_dir / _d)
-
-    res_paths.append(_c_root_dir / "runs" / "1" / "description.xml")
     for _d in ["datasets", "tasks"]:
         res_paths.append(_c_root_dir / _d)
 
