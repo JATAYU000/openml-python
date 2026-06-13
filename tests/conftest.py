@@ -209,6 +209,21 @@ def _expected_static_cache_state(root_dir: Path) -> list[Path]:
         res_paths.append(_c_root_dir / _d)
 
     res_paths.append(_c_root_dir / "runs" / "1" / "description.xml")
+    for _d in ["datasets", "tasks"]:
+        res_paths.append(_c_root_dir / _d)
+
+    for _id in ["-1", "2"]:
+        tmp_p = _c_root_dir / "datasets" / _id
+        res_paths.extend(
+            [
+                tmp_p / "dataset.arff",
+                tmp_p / "features.xml",
+                tmp_p / "qualities.xml",
+                tmp_p / "description.xml",
+            ]
+        )
+
+    res_paths.append(_c_root_dir / "datasets" / "30" / "dataset_30.pq")
 
     for _id in ["1", "3", "1882"]:
         tmp_p = _c_root_dir / "tasks" / _id
@@ -223,6 +238,9 @@ def _expected_static_cache_state(root_dir: Path) -> list[Path]:
         _c_root_dir / "api" / "v1" / "xml" / "setup",
         _c_root_dir / "api" / "v1" / "xml" / "setup" / "1",
         _c_root_dir / "api" / "v1" / "xml" / "setup" / "1" / "body.xml",
+        _c_root_dir / "api" / "v1" / "xml" / "run",
+        _c_root_dir / "api" / "v1" / "xml" / "run" / "1",
+        _c_root_dir / "api" / "v1" / "xml" / "run" / "1" / "body.xml",
     ])
 
     res_paths.extend([
@@ -357,6 +375,8 @@ def http_client_v1() -> HTTPClient:
 
 @pytest.fixture
 def http_client_v2() -> HTTPClient:
+    if openml.config.servers[APIVersion.V2]["server"] is None:
+        pytest.skip("V2 server is not configured")
     return HTTPClient(api_version=APIVersion.V2)
 
 
