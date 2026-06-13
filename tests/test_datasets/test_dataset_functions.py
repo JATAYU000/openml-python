@@ -26,7 +26,6 @@ from openml.datasets import edit_dataset, fork_dataset
 from openml.datasets.functions import (
     DATASETS_CACHE_DIR_NAME,
     _get_dataset_arff,
-    _get_dataset_description,
     _get_dataset_features_file,
     _get_dataset_parquet,
     _get_dataset_qualities_file,
@@ -336,18 +335,12 @@ class TestOpenMLDataset(TestBase):
         dataset = openml.datasets.get_dataset(did)
         assert dataset.row_id_attribute == "Counter"
 
-    @pytest.mark.test_server()
-    def test__get_dataset_description(self):
-        description = _get_dataset_description(self.workdir, 2)
-        assert isinstance(description, dict)
-        description_xml_path = os.path.join(self.workdir, "description.xml")
-        assert os.path.exists(description_xml_path)
 
     @pytest.mark.test_server()
     def test__getarff_path_dataset_arff(self):
         openml.config.set_root_cache_directory(self.static_cache_dir)
-        description = _get_dataset_description(self.workdir, 2)
-        arff_path = _get_dataset_arff(description)
+        dataset = openml.datasets.get_dataset(2)
+        arff_path = _get_dataset_arff(dataset)
         assert isinstance(arff_path, Path)
         assert arff_path.exists()
 

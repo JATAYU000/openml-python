@@ -35,7 +35,6 @@ NO_ACCESS_GRANTED_ERRCODE = 112
 class DatasetV1API(ResourceV1API, DatasetAPI):
     """Version 1 API implementation for dataset resources."""
 
-    @openml.utils.thread_safe_if_oslo_installed
     def get(
         self,
         dataset_id: int,
@@ -448,30 +447,42 @@ class DatasetV1API(ResourceV1API, DatasetAPI):
         # an error will be thrown in case the request was unsuccessful
         return True
 
-    def get_features(self, dataset_id: int) -> dict[int, OpenMLDataFeature]:
+    def get_features(
+        self,
+        dataset_id: int,
+        force_refresh_cache: bool = False,  # noqa: FBT002
+    ) -> dict[int, OpenMLDataFeature]:
         """Get features of a dataset from server.
 
         Parameters
         ----------
         dataset_id : int
             ID of the dataset.
+        force_refresh_cache : bool (default=False)
+            Refresh the cache and re-download the features file.
 
         Returns
         -------
         dict[int, OpenMLDataFeature]
         """
         path = f"data/features/{dataset_id}"
-        xml = self._http.get(path, enable_cache=True).text
+        xml = self._http.get(path, enable_cache=True, refresh_cache=force_refresh_cache).text
         _ = self.download_features_file(dataset_id)  # ensure the file is downloaded and cached
         return self._parse_features_xml(xml)
 
-    def get_qualities(self, dataset_id: int) -> dict[str, float] | None:
+    def get_qualities(
+        self,
+        dataset_id: int,
+        force_refresh_cache: bool = False,  # noqa: FBT002
+    ) -> dict[str, float] | None:
         """Get qualities of a dataset from server.
 
         Parameters
         ----------
         dataset_id : int
             ID of the dataset.
+        force_refresh_cache : bool (default=False)
+            Refresh the cache and re-download the qualities file.
 
         Returns
         -------
@@ -479,7 +490,7 @@ class DatasetV1API(ResourceV1API, DatasetAPI):
         """
         path = f"data/qualities/{dataset_id!s}"
         try:
-            xml = self._http.get(path, enable_cache=True).text
+            xml = self._http.get(path, enable_cache=True, refresh_cache=force_refresh_cache).text
         except OpenMLServerException as e:
             if e.code == 362 and str(e) == "No qualities found - None":
                 # quality file stays as None
@@ -888,7 +899,6 @@ class DatasetV1API(ResourceV1API, DatasetAPI):
 class DatasetV2API(ResourceV2API, DatasetAPI):
     """Version 2 API implementation for dataset resources."""
 
-    @openml.utils.thread_safe_if_oslo_installed
     def get(
         self,
         dataset_id: int,
@@ -1176,13 +1186,19 @@ class DatasetV2API(ResourceV2API, DatasetAPI):
         _ = (dataset_id, index, ontology)  # unused method arg mypy error
         raise self._not_supported(method="feature_remove_ontology")
 
-    def get_features(self, dataset_id: int) -> dict[int, OpenMLDataFeature]:
+    def get_features(
+        self,
+        dataset_id: int,
+        force_refresh_cache: bool = False,  # noqa: FBT002
+    ) -> dict[int, OpenMLDataFeature]:
         """Get features of a dataset from server.
 
         Parameters
         ----------
         dataset_id : int
             ID of the dataset.
+        force_refresh_cache : bool (default=False)
+            Refresh the cache and re-download the features file.
 
         Returns
         -------
@@ -1190,17 +1206,23 @@ class DatasetV2API(ResourceV2API, DatasetAPI):
         Dictionary mapping feature index to OpenMLDataFeature.
         """
         path = f"datasets/features/{dataset_id}"
-        json = self._http.get(path, enable_cache=True).json()
+        json = self._http.get(path, enable_cache=True, refresh_cache=force_refresh_cache).json()
 
         return self._parse_features_json(json)
 
-    def get_qualities(self, dataset_id: int) -> dict[str, float] | None:
+    def get_qualities(
+        self,
+        dataset_id: int,
+        force_refresh_cache: bool = False,  # noqa: FBT002
+    ) -> dict[str, float] | None:
         """Get qualities of a dataset from server.
 
         Parameters
         ----------
         dataset_id : int
             ID of the dataset.
+        force_refresh_cache : bool (default=False)
+            Refresh the cache and re-download the qualities file.
 
         Returns
         -------
@@ -1209,7 +1231,9 @@ class DatasetV2API(ResourceV2API, DatasetAPI):
         """
         path = f"datasets/qualities/{dataset_id!s}"
         try:
-            qualities_json = self._http.get(path, enable_cache=True).json()
+            qualities_json = self._http.get(
+                path, enable_cache=True, refresh_cache=force_refresh_cache
+            ).json()
         except OpenMLServerException as e:
             if e.code == 362 and str(e) == "No qualities found - None":
                 logger.warning(f"No qualities found for dataset {dataset_id}")

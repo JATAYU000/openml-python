@@ -6,21 +6,16 @@ import logging
 import warnings
 from functools import partial
 from pathlib import Path
-from pyexpat import ExpatError
 from typing import TYPE_CHECKING, Any, Literal
 
 import arff
 import numpy as np
 import pandas as pd
-import xmltodict
 from scipy.sparse import coo_matrix
 
 import openml
 import openml._api_calls
 import openml.utils
-from openml.exceptions import (
-    OpenMLServerError,
-)
 from openml.utils import (
     _create_cache_directory_for_id,
 )
@@ -881,49 +876,6 @@ def _topic_delete_dataset(data_id: int, topic: str) -> int:
         raise TypeError(f"`data_id` must be of type `int`, not {type(data_id)}.")
 
     return openml._backend.dataset.delete_topic(data_id, topic)
-
-
-def _get_dataset_description(did_cache_dir: Path, dataset_id: int) -> dict[str, Any]:
-    """Get the dataset description as xml dictionary.
-
-    This function is NOT thread/multiprocessing safe.
-
-    Parameters
-    ----------
-    did_cache_dir : Path
-        Cache subdirectory for this dataset.
-
-    dataset_id : int
-        Dataset ID
-
-    Returns
-    -------
-    dict
-        XML Dataset description parsed to a dict.
-
-    """
-    # TODO implement a cache for this that invalidates itself after some time
-    # This can be saved on disk, but cannot be cached properly, because
-    # it contains the information on whether a dataset is active.
-    description_file = did_cache_dir / "description.xml"
-
-    try:
-        with description_file.open(encoding="utf8") as fh:
-            dataset_xml = fh.read()
-        description = xmltodict.parse(dataset_xml)["oml:data_set_description"]
-    except Exception:  # noqa: BLE001
-        url_extension = f"data/{dataset_id}"
-        dataset_xml = openml._api_calls._perform_api_call(url_extension, "get")
-        try:
-            description = xmltodict.parse(dataset_xml)["oml:data_set_description"]
-        except ExpatError as e:
-            url = openml._api_calls._create_url_from_endpoint(url_extension)
-            raise OpenMLServerError(f"Dataset description XML at '{url}' is malformed.") from e
-
-        with description_file.open("w", encoding="utf8") as fh:
-            fh.write(dataset_xml)
-
-    return description  # type: ignore
 
 
 def _get_dataset_parquet(

@@ -81,10 +81,18 @@ class DatasetAPI(ResourceAPI):
     def feature_remove_ontology(self, dataset_id: int, index: int, ontology: str) -> bool: ...
 
     @abstractmethod
-    def get_features(self, dataset_id: int) -> dict[int, OpenMLDataFeature]: ...
+    def get_features(
+        self,
+        dataset_id: int,
+        force_refresh_cache: bool = False,  # noqa: FBT002
+    ) -> dict[int, OpenMLDataFeature]: ...
 
     @abstractmethod
-    def get_qualities(self, dataset_id: int) -> dict[str, float] | None: ...
+    def get_qualities(
+        self,
+        dataset_id: int,
+        force_refresh_cache: bool = False,  # noqa: FBT002
+    ) -> dict[str, float] | None: ...
 
     @abstractmethod
     def parse_features_file(

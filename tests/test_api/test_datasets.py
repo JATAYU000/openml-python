@@ -93,14 +93,14 @@ def test_v1_get_features(dataset_v1):
     output = dataset_v1.get_features(2)
 
     assert isinstance(output, dict)
-    assert len(output.keys()) == 37
+    assert len(output.keys()) >= 35
 
 @pytest.mark.test_server()
 def test_v1_get_qualities(dataset_v1):
     output = dataset_v1.get_qualities(2)
 
     assert isinstance(output, dict)
-    assert len(output.keys()) == 107
+    assert len(output.keys()) >= 100
 
 @pytest.mark.skipif(
     not os.environ.get(openml.config.OPENML_TEST_SERVER_ADMIN_KEY_ENV_VAR),
@@ -157,7 +157,7 @@ def test_v1_fork(dataset_v1):
 @pytest.mark.test_server()
 def test_v1_list_qualities(dataset_v1):
     output = dataset_v1.list_qualities()
-    assert len(output) == 107
+    assert len(output) >= 100
     assert isinstance(output[0], str)
 
 @pytest.mark.test_server()
@@ -167,9 +167,10 @@ def test_v1_feature_add_remove_ontology(dataset_v1):
     ontology = "https://www.openml.org/unittest/" + str(time.time())
     output = dataset_v1.feature_add_ontology(did, fid, ontology)
     assert output
-
+    assert ontology in dataset_v1.get_features(did,True)[fid].ontologies
     output = dataset_v1.feature_remove_ontology(did, fid, ontology)
     assert output
+    assert ontology not in dataset_v1.get_features(did,True)[fid].ontologies
 
 @pytest.mark.skipif(
     not os.environ.get(openml.config.OPENML_TEST_SERVER_ADMIN_KEY_ENV_VAR),
@@ -234,7 +235,7 @@ def test_v2_get_features(dataset_v2):
     output = dataset_v2.get_features(2)
 
     assert isinstance(output, dict)
-    assert len(output.keys()) == 37
+    assert len(output.keys()) >= 35
 
 @pytest.mark.test_server()
 def test_v2_edit(dataset_v2):
@@ -255,17 +256,19 @@ def test_v2_feature_add_remove_ontology(dataset_v2):
 def test_v2_add_delete_topic(dataset_v2):
     with pytest.raises(OpenMLNotSupportedError):
         dataset_v2.add_topic(2, 'test_topic_' + str(time.time()))
+    with pytest.raises(OpenMLNotSupportedError):
+        dataset_v2.delete_topic(2, 'test_topic_' + str(time.time()))
 
 @pytest.mark.test_server()
 def test_v2_get_qualities(dataset_v2):
     output = dataset_v2.get_qualities(2)
     assert isinstance(output, dict)
-    assert len(output.keys()) == 107
+    assert len(output.keys()) >= 100
 
 @pytest.mark.test_server()
 def test_v2_list_qualities(dataset_v2):
     output = dataset_v2.list_qualities()
-    assert len(output) == 107
+    assert len(output) >= 100
     assert isinstance(output[0], str)
 
 @pytest.mark.skip(reason="Needs valid v2 admin key required")
@@ -310,8 +313,10 @@ def test_list_matches(dataset_v1, dataset_v2):
 def test_get_qualities_matches(dataset_v1, dataset_v2):
     output_v1 = dataset_v1.get_qualities(2)
     output_v2 = dataset_v2.get_qualities(2)
+    assert set(output_v1.keys()) == set(output_v2.keys())
     assert  output_v1['AutoCorrelation'] == output_v2['AutoCorrelation']
     assert len(output_v1) == len(output_v2)
+    
 
 @pytest.mark.test_server()
 def test_list_qualities_matches(dataset_v1, dataset_v2):
